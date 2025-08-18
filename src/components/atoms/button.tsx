@@ -1,4 +1,4 @@
-function Button({ prop, onClick }) {
+function Button({ prop, onClick }: { prop: { name: string, color?: string }, onClick?: () => void }) {
   return (
     <div
       onClick={onClick}

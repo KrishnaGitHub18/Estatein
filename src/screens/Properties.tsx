@@ -51,7 +51,7 @@ function Properties() {
           />
         </div>
 
-        <div className="flex justify-between items-center mt-[50px] gap-[5vw]">
+        <div className="flex flex-col lg:flex-row justify-between items-center mt-[50px] gap-[5vw]">
           <PropertyCard />
           <PropertyCard />
           <PropertyCard />
@@ -68,9 +68,11 @@ function Properties() {
             find your perfect match. Don't wait; let's embark on this exciting
             journey together.
           </p>
-          <CustomButton
-            prop={{ name: "View All Properties", color: "#262626" }}
-          />
+          <div className="hidden lg:block">
+            <CustomButton
+              prop={{ name: "View All Properties", color: "#262626" }}
+            />
+          </div>
         </div>
 
         <div className="flex justify-between items-center my-[50px] gap-[5vw] text-[#ffffff]">

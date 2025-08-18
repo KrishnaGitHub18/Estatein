@@ -18,13 +18,14 @@ function Services() {
 
       {/* SLIDER SECTION */}
       <div className="h-[10px] w-full bg-[#1A1A1A]" />
-      <div className="flex justify-around items-center py-[10px] gap-2 px-3">
+      <div className="flex flex-wrap lg:flex-nowrap justify-center sm:justify-around items-center py-[10px] gap-4 px-3">
         <SliderCard />
         <SliderCard />
         <SliderCard />
         <SliderCard />
         <SliderCard />
       </div>
+
       <div className="h-[10px] w-full bg-[#1A1A1A]" />
 
       {/* KEY FACTORS */}
@@ -48,7 +49,8 @@ function Services() {
             {item.description}
           </p>
 
-          <div className="flex justify-between items-center mt-[50px] gap-[5vw]">
+          {/* Responsive wrapper for KeyFactorCards */}
+          <div className="flex flex-col sm:flex-row justify-between items-center mt-[50px] gap-[5vw]">
             <KeyFactorCard />
             <KeyFactorCard />
             <KeyFactorCard />

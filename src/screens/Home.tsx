@@ -76,7 +76,7 @@ function Home() {
           <Button prop={{ name: "View All Properties" }} />
         </div>
 
-        <div className="flex flex-wrap justify-center md:justify-between items-center mt-10 gap-6 md:gap-[5vw]">
+        <div className="flex flex-wrap justify-center md:justify-between items-center mt-10 gap-6 md:gap-[2vw]">
           <PropertyCard />
           <PropertyCard />
           <PropertyCard />
@@ -97,7 +97,7 @@ function Home() {
           <Button prop={{ name: "More Reviews" }} />
         </div>
 
-        <div className="flex flex-wrap justify-center md:justify-between items-center mt-10 gap-6 md:gap-[5vw]">
+        <div className="flex flex-wrap justify-center md:justify-between items-center mt-10 gap-6 md:gap-3">
           <ReviewsCard />
           <ReviewsCard />
           <ReviewsCard />
@@ -118,7 +118,7 @@ function Home() {
           <Button prop={{ name: "More Questions" }} />
         </div>
 
-        <div className="flex flex-wrap justify-center md:justify-between items-center mt-10 gap-6 md:gap-[5vw]">
+        <div className="flex flex-wrap justify-center md:justify-between items-center mt-10 gap-6 md:gap-3">
           <FAQCard />
           <FAQCard />
           <FAQCard />

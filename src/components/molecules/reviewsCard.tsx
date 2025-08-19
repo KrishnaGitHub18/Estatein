@@ -4,7 +4,7 @@ import human from '../../assets/Home/human.png'
 
 function ReviewsCard() {
   return (
-    <div className="flex flex-col justify-start items-start text-white px-[20px] py-[25px] border-1 border-[#262626] rounded-lg">
+    <div className="flex flex-col xl:max-w-[400px] justify-start items-start text-white px-[20px] py-[25px] border-1 border-[#262626] rounded-lg">
         <img src={stars} alt="" className='h-[35px]'/>
         <p className='text-md my-5'>Exceptional Service!</p>
         <p className='text-[10px]'>Our experience with Estatein was outstanding. Their team's dedication and professionalism made finding our dream home a breeze. Highly recommended!</p>

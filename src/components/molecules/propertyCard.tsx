@@ -10,7 +10,7 @@ import { useNavigate } from 'react-router-dom';
 function PropertyCard() {
   const navigate = useNavigate();
   return (
-    <div className="flex flex-col justify-center items-center p-[20px] border-1 border-[#262626] rounded-lg">
+    <div className="flex flex-col justify-center xl:max-w-[400px] items-center p-[20px] border-1 border-[#262626] rounded-lg">
         <img src={buildingImg} alt="" />
         <div className="flex flex-col justify-start w-[100%] py-5">
         <p className="text-white justify">Seaside Serenity Villa</p>

@@ -1,15 +1,51 @@
 import React, { useState } from "react";
 import CustomButton from "../components/atoms/button";
 import PropertyCard from "../components/molecules/propertyCard";
-import { Button, Form, Input } from "antd";
+import { Button, Form, Input, message } from "antd";
+import { useSelector } from "react-redux";
+import axios from "axios";
 
 type LayoutType = Parameters<typeof Form>[0]["layout"];
 
 function Properties() {
   const [form] = Form.useForm();
-  const handleSubmit = (values) => {
-    console.log("Form submitted:", values);
+  const [messageApi, contextHolder] = message.useMessage();
+  const handleSubmit = async (values) => {
+    messageApi.open({
+      type: "loading",
+      content: "Action in progress..",
+      duration: 0,
+    });
+    try {
+      const URL = import.meta.env.VITE_URL;
+      const response = await axios.post(`${URL}/api/email`, {
+        name: values?.name,
+        email: values?.email,
+      });
+      console.log(response);
+      messageApi.destroy();
+      messageApi.open({
+        type: "success",
+        content: "Request sent successfully. We will contact you soon.",
+        duration: 3,
+      });
+    } catch (err) {
+      messageApi.destroy();
+      messageApi.open({
+        type: "error",
+        content: err?.response?.data?.details
+          ? err.response.data.details
+          : "An unknown error occurred while fetching the request.",
+      });
+    }
+    form.setFieldsValue({
+      name: "",
+      email: "",
+    });
   };
+
+  const properties = useSelector((state) => state.properties.propertiesList);
+  console.log(properties);
 
   return (
     <div className="bg-[#141414] text-white">
@@ -38,7 +74,7 @@ function Properties() {
 
       {/* DISCOVER PROPERTY SECTION */}
       <div className="pt-[150px] pb-[70px] px-[6%]">
-        <p className="text-white text-[35px]">Featured Properties</p>
+        <p className="text-white text-[35px]">Available Properties</p>
         <div className="flex justify-between items-center text-[#999999] text-xs gap-[10vw]">
           <p>
             Explore our handpicked selection of featured properties. Each
@@ -46,15 +82,20 @@ function Properties() {
             available through Estatein. Click "View Details" for more
             information.
           </p>
-          <CustomButton
-            prop={{ name: "View All Properties", color: "#262626" }}
-          />
         </div>
 
-        <div className="flex flex-col lg:flex-row justify-between items-center mt-[50px] gap-[5vw]">
-          <PropertyCard />
-          <PropertyCard />
-          <PropertyCard />
+        <div className="flex flex-wrap justify-center md:justify-between items-center mt-10 gap-6 md:gap-[2vw]">
+          {properties && properties?.length > 0 ? (
+            properties.map((property, index) => (
+              <PropertyCard key={index} prop={property} />
+            ))
+          ) : (
+            <>
+              <PropertyCard />
+              <PropertyCard />
+              <PropertyCard />
+            </>
+          )}
         </div>
       </div>
 
@@ -68,21 +109,17 @@ function Properties() {
             find your perfect match. Don't wait; let's embark on this exciting
             journey together.
           </p>
-          <div className="hidden lg:block">
-            <CustomButton
-              prop={{ name: "View All Properties", color: "#262626" }}
-            />
-          </div>
         </div>
 
         <div className="flex justify-between items-center my-[50px] gap-[5vw] text-[#ffffff]">
           <Form
             layout="horizontal"
-            labelCol={{ span: 60 }} // width of label column
-            wrapperCol={{ span: 30 }} // width of input column
+            labelCol={{ span: 60 }}
+            wrapperCol={{ span: 30 }}
             onFinish={handleSubmit}
             className="w-full text-white"
           >
+            {contextHolder}
             <Form.Item
               label={<span className="text-white">Name: </span>}
               name="name"
@@ -108,7 +145,7 @@ function Properties() {
                 type="submit"
                 className="bg-[#703BF7] px-5 py-3 rounded-md text-sm text-white hover:bg-[#5a2fca] transition"
               >
-                Book Now
+                Contact Us
               </button>
             </Form.Item>
           </Form>

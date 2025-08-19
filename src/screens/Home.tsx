@@ -1,4 +1,4 @@
-import React from "react";
+import React, { use, useEffect, useState } from "react";
 import hero from "../assets/Home/Container.png";
 import Button from "../components/atoms/button";
 import StatContainer from "../components/atoms/statContainer";
@@ -7,9 +7,28 @@ import PropertyCard from "../components/molecules/propertyCard";
 import ReviewsCard from "../components/molecules/reviewsCard";
 import FAQCard from "../components/molecules/faqCard";
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
+import { useDispatch } from "react-redux";
+import { setProperties } from "../redux/features/propertiesSlice";
 
 function Home() {
   const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const [properties, setPropertiesData] = useState();
+  const fetchPropertiesData = async () => {
+    try {
+      const URL = import.meta.env.VITE_URL;
+      const response = await axios.get(`${URL}/api/propertiesData`);
+      setPropertiesData(response?.data);
+      dispatch(setProperties(response.data));
+    } catch (err) {
+      console.error(err);
+    }
+  };
+  useEffect(() => {
+    fetchPropertiesData()
+  },[]);
+
   return (
     <div className="bg-[#141414]">
       {/* HERO SECTION */}
@@ -73,13 +92,22 @@ function Home() {
             available through Estatein. Click "View Details" for more
             information.
           </p>
-          <Button prop={{ name: "View All Properties" }} />
+          <Button prop={{ name: "View All Properties" }} onClick={()=>navigate("/properties")}/>
         </div>
-
         <div className="flex flex-wrap justify-center md:justify-between items-center mt-10 gap-6 md:gap-[2vw]">
-          <PropertyCard />
-          <PropertyCard />
-          <PropertyCard />
+          {
+          properties && properties?.length > 0 ? 
+            properties.slice(0, 3).map((property, index) => (
+              <PropertyCard key={index} prop={property} />
+            )) 
+            : (
+              <>
+                <PropertyCard />
+                <PropertyCard />
+                <PropertyCard />
+              </>
+            )
+        }
         </div>
       </div>
 

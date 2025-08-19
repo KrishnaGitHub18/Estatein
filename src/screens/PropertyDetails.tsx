@@ -1,4 +1,4 @@
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Carousel } from "antd";
 import { LeftOutlined, RightOutlined } from "@ant-design/icons";
 import house1 from "../assets/Property/one.jpg";
@@ -6,30 +6,96 @@ import house2 from "../assets/Property/two.jpg";
 import house3 from "../assets/Property/three.jpg";
 import thunderIcon from "../assets/Icons/thunderIcon.png";
 import CustomButton from "../components/atoms/button";
-import { Button, Form, Input } from "antd";
+import { Button, Form, Input, message } from "antd";
+import { useLocation } from "react-router-dom";
+import axios from "axios";
 
 type LayoutType = Parameters<typeof Form>[0]["layout"];
 
 function PropertyDetails() {
   const carouselRef = useRef(null);
+  const [messageApi, contextHolder] = message.useMessage();
 
   const [form] = Form.useForm();
-  const handleSubmit = (values) => {
-    console.log("Form submitted:", values);
+  const handleSubmit = async (values) => {
+    console.log(values);
+    messageApi.open({
+      type: "loading",
+      content: "Action in progress..",
+      duration: 0,
+    });
+    try {
+      const URL = import.meta.env.VITE_URL;
+      const response = await axios.post(`${URL}/api/email`, {
+        name: values?.name,
+        email: values?.email,
+      });
+      console.log(response);
+      messageApi.destroy();
+      messageApi.open({
+        type: "success",
+        content: "Request sent successfully. We will contact you soon.",
+        duration: 3,
+      });
+    } catch (err) {
+      messageApi.destroy();
+      messageApi.open({
+        type: "error",
+        content: err?.response?.data?.details
+          ? err.response.data.details
+          : "An unknown error occurred while fetching the request.",
+      });
+    }
   };
+
+  const location = useLocation();
+  const { id } = location.state || {};
+  console.log("Received ID:", id);
+
+  const [propertyDetails, setPropertyDetails] = useState();
+
+  const fetchPropertyDetails = async () => {
+    const URL = import.meta.env.VITE_URL;
+    try {
+      const response = await axios.post(`${URL}/api/propertyDetails`, {
+        id: id,
+      });
+      console.log(response);
+      setPropertyDetails(response.data);
+    } catch (error) {
+      console.error("Error fetching property details:", error);
+    }
+  };
+  useEffect(() => {
+    if (id > 0) {
+      fetchPropertyDetails();
+    }
+  }, [id]);
+
   return (
     <div className="bg-[#141414] text-white py-10 px-[5vw] ">
       {/* HEADER */}
       <div className="flex flex-col lg:flex-row justify-between items-start gap-4">
         <div className="flex flex-wrap justify-start items-center gap-3">
-          <p className="text-[20px]">Seaside serenity villa</p>
+          <p className="text-[20px]">
+            {propertyDetails && propertyDetails?.name
+              ? propertyDetails?.name
+              : "Seaside serenity villa"}
+          </p>
           <p className="text-[10px] border border-[#262626] px-2 py-1 rounded-lg">
-            ! California, USA
+            {propertyDetails && propertyDetails?.location
+              ? propertyDetails?.location
+              : "California, USA"}
           </p>
         </div>
         <div>
           <p className="text-xs text-[#999999]">Price</p>
-          <p>$1250000</p>
+          <p>
+            $
+            {propertyDetails && propertyDetails?.price
+              ? propertyDetails?.price
+              : "1250000"}
+          </p>
         </div>
       </div>
 
@@ -37,27 +103,25 @@ function PropertyDetails() {
       {/* CAROUSEL - only on lg and above */}
       <div className="relative mt-10 hidden lg:block">
         <Carousel autoplaySpeed={2000} ref={carouselRef}>
-          <div>
-            <img
-              src={house1}
-              alt="Slide 1"
-              className="w-full h-[70vh] object-cover"
-            />
-          </div>
-          <div>
-            <img
-              src={house2}
-              alt="Slide 2"
-              className="w-full h-[70vh] object-cover"
-            />
-          </div>
-          <div>
-            <img
-              src={house3}
-              alt="Slide 3"
-              className="w-full h-[70vh] object-cover"
-            />
-          </div>
+          {propertyDetails && propertyDetails?.images
+            ? propertyDetails?.images.map((item, index) => (
+                <div key={index}>
+                  <img
+                    src={item}
+                    alt="Slide 1"
+                    className="w-full h-[70vh] object-cover"
+                  />
+                </div>
+              ))
+            : [house1, house2, house3].map((item, index) => (
+                <div key={index}>
+                  <img
+                    src={item}
+                    alt="Slide 1"
+                    className="w-full h-[70vh] object-cover"
+                  />
+                </div>
+              ))}
         </Carousel>
 
         <button
@@ -127,60 +191,100 @@ function PropertyDetails() {
         <div className="w-full lg:w-1/2 border border-[#262626] p-6 md:p-10 flex flex-col gap-5">
           <p>Description</p>
           <p className="text-sm text-[#999999]">
-            Discover your own piece of paradise with the Seaside Serenity Villa.
-            T With an open floor plan, breathtaking ocean views from every room,
-            and direct access to a pristine sandy beach, this property is the
-            epitome of coastal living.
+            {propertyDetails && propertyDetails?.description ? (
+              propertyDetails.description
+            ) : (
+              <>
+                Discover your own piece of paradise with the Seaside Serenity
+                Villa. T With an open floor plan, breathtaking ocean views from
+                every room, and direct access to a pristine sandy beach, this
+                property is the epitome of coastal living.
+              </>
+            )}
           </p>
           <hr className="text-[#262626]" />
           <div className="flex justify-between items-center text-center">
             <div>
               <p className="text-xs text-[#999999]">Bedrooms</p>
-              <p>04</p>
+              <p>
+                {propertyDetails && propertyDetails?.bedroomcount
+                  ? propertyDetails?.bedroomcount
+                  : "04"}
+              </p>
             </div>
             <div>
               <p className="text-xs text-[#999999]">Bathrooms</p>
-              <p>03</p>
+              <p>
+                {propertyDetails && propertyDetails?.bathroomcount
+                  ? propertyDetails?.bathroomcount
+                  : "02"}
+              </p>
             </div>
             <div>
               <p className="text-xs text-[#999999]">Area</p>
-              <p>2500 sqft</p>
+              <p>
+                {propertyDetails && propertyDetails?.area
+                  ? propertyDetails?.area
+                  : "2500"}{" "}
+                sqft
+              </p>
             </div>
           </div>
         </div>
         <div className="w-full lg:w-1/2 border border-[#262626] p-6 md:p-10 flex flex-col gap-5">
           <p>Key Features and Amenities</p>
-          {[
-            { item: "Expansive oceanfront terrace for outdoor entertaining" },
-            { item: "Gourmet kitchen with top-of-the-line appliances" },
-            {
-              item: "Private beach access for morning strolls and sunset views",
-            },
-            {
-              item: "Master suite with a spa-inspired bathroom and ocean-facing balcony",
-            },
-            { item: "Private garage and ample storage space" },
-          ].map(({ item }, index) => (
-            <div
-              key={index}
-              className="flex gap-2 bg-[#262626] py-2 px-4 md:px-5 border-l-4 border-[#703BF7] items-center text-[#999999] text-sm"
-            >
-              <img src={thunderIcon} alt="" className="h-[14px]" />
-              {item}
-            </div>
-          ))}
+          {propertyDetails && propertyDetails?.keyfeatures
+            ? propertyDetails?.keyfeatures.map((item, index) => (
+                <div
+                  key={index}
+                  className="flex gap-2 bg-[#262626] py-2 px-4 md:px-5 border-l-4 border-[#703BF7] items-center text-[#999999] text-sm"
+                >
+                  <img src={thunderIcon} alt="" className="h-[14px]" />
+                  {item}
+                </div>
+              ))
+            : [
+                {
+                  item: "Expansive oceanfront terrace for outdoor entertaining",
+                },
+                { item: "Gourmet kitchen with top-of-the-line appliances" },
+                {
+                  item: "Private beach access for morning strolls and sunset views",
+                },
+                {
+                  item: "Master suite with a spa-inspired bathroom and ocean-facing balcony",
+                },
+                { item: "Private garage and ample storage space" },
+              ].map(({ item }, index) => (
+                <div
+                  key={index}
+                  className="flex gap-2 bg-[#262626] py-2 px-4 md:px-5 border-l-4 border-[#703BF7] items-center text-[#999999] text-sm"
+                >
+                  <img src={thunderIcon} alt="" className="h-[14px]" />
+                  {item}
+                </div>
+              ))}
         </div>
       </div>
 
       {/* CONTACT SECTION */}
       <div className="mt-[50px]">
         <p className="text-white text-[24px] md:text-[35px]">
-          Inquire About Seaside Serenity Villa
+          Inquire about this{" "}
+          {propertyDetails && propertyDetails?.name
+            ? propertyDetails?.name
+            : "Seaside Serenity Villa"}
         </p>
         <p className="text-[#999999] text-xs md:text-sm mt-2">
-          Interested in this property? Fill out the form below, and our real
-          estate experts will get back to you with more details, including
-          scheduling a viewing and answering any questions you may have.
+          {propertyDetails && propertyDetails?.description ? (
+            propertyDetails.description
+          ) : (
+            <>
+              Interested in this property? Fill out the form below, and our real
+              estate experts will get back to you with more details, including
+              scheduling a viewing and answering any questions you may have.
+            </>
+          )}
         </p>
 
         <div className="flex flex-col md:flex-row justify-between items-start my-[30px] md:my-[50px] gap-[5vw] text-white">
@@ -190,6 +294,7 @@ function PropertyDetails() {
             onFinish={handleSubmit}
             className="w-full"
           >
+            {contextHolder}
             <Form.Item
               label={<span className="text-white">Name: </span>}
               name="name"
